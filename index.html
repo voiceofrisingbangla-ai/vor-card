@@ -3,406 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Of Rising Bangla - Pro News Card Generator</title>
+    <title>Voice Of Rising Bangla - Photo Card Layout Preview</title>
     <style>
         :root {
-            --primary-red: #b71c1c;
-            --dark-red: #8b0000;
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-color: #222222;
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --red: #8b0000;
+            --bright-red: #b71c1c;
+            --text: #f8fafc;
+            --muted: #94a3b8;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-color);
             margin: 0;
             padding: 20px;
-            color: var(--text-color);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .container {
-            max-width: 750px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        h2, h3 {
-            color: var(--primary-red);
-            text-align: center;
+        h2 {
             margin-top: 0;
+            color: #ef4444;
+            text-align: center;
         }
-        .form-group {
-            margin-bottom: 15px;
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        @media (max-width: 800px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .controls-panel {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        .control-group {
+            margin-bottom: 16px;
         }
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #444;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-weight: 600;
         }
-        input[type="text"], input[type="password"], input[type="date"], textarea {
+        input[type="range"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-            box-sizing: border-box;
+            accent-color: #ef4444;
         }
-        textarea {
-            resize: vertical;
-            height: 90px;
-        }
-        input[type="file"] {
-            border: 1px dashed var(--primary-red);
-            padding: 10px;
+        .preview-card {
             width: 100%;
-            border-radius: 6px;
-            background: #fff9f9;
-            box-sizing: border-box;
-        }
-        .btn {
-            background: var(--primary-red);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.3s;
-        }
-        .btn:hover {
-            background: var(--dark-red);
-        }
-        .btn-secondary {
-            background: #555;
-            margin-top: 10px;
-        }
-        .preview-container {
-            text-align: center;
-            margin-top: 25px;
-        }
-        canvas {
-            max-width: 100%;
-            height: auto;
-            border: 2px solid #ddd;
+            max-width: 500px;
+            aspect-ratio: 1/1;
+            background: var(--red);
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .hidden {
-            display: none !important;
-        }
-        .logo-status {
-            font-size: 13px;
-            color: #2e7d32;
-            margin-top: 4px;
-            font-weight: bold;
-        }
-        .logout-bar {
+            overflow: hidden;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+        }
+        .image-container {
+            width: 100%;
+            height: 55%;
+            background: #334155 url('https://picsum.photos/800/500') center/cover no-repeat;
+            position: relative;
+        }
+        .logo-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
             align-items: center;
-            background: #ffebee;
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--red);
+            font-size: 14px;
+        }
+        .ad-banner {
+            background: #ffffff;
+            color: #1e293b;
+            text-align: center;
+            padding: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        .text-section {
+            flex: 1;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+        }
+        .date-badge {
+            background: var(--bright-red);
+            color: white;
+            padding: 3px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .headline {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0;
+            transition: all 0.2s;
+        }
+        .footer {
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 8px;
+        }
+        .footer-title {
+            color: #fca5a5;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .footer-sub {
+            color: #ffffff;
+            font-size: 11px;
+            margin-top: 2px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- লগইন সেকশন -->
-    <div id="loginSection">
-        <h2>🔒 এডমিন লগইন</h2>
-        <p style="text-align: center; color: #666; font-size: 14px;">ফটো কার্ড জেনারেটর ব্যবহার করতে পাসওয়ার্ড দিন</p>
-        <div class="form-group">
-            <label>পাসওয়ার্ড দিন:</label>
-            <input type="password" id="adminPassword" placeholder="ডিফল্ট পাসওয়ার্ড: vor123">
-        </div>
-        <button class="btn" onclick="checkLogin()">লগইন করুন</button>
-        <p id="loginError" style="color: red; text-align: center; font-size: 14px; margin-top: 10px;"></p>
-    </div>
+    <h2>Voice Of Rising Bangla - কার্ড ডিজাইন কনসেপ্ট</h2>
 
-    <!-- মূল জেনারেটর প্যানেল -->
-    <div id="generatorSection" class="hidden">
-        <div class="logout-bar">
-            <span>স্বাগতম, <b>Voice Of Rising Bangla</b></span>
-            <button onclick="logout()" style="background: #c62828; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer;">লগআউট</button>
-        </div>
+    <div class="layout-grid">
+        <div class="controls-panel">
+            <h3>কন্ট্রোল সিমুলেশন</h3>
+            
+            <div class="control-group">
+                <label>টেক্সট সাইজ (Font Size)</label>
+                <input type="range" id="sizeSlider" min="16" max="28" value="20" oninput="updatePreview()">
+            </div>
 
-        <h2>Voice Of Rising Bangla</h2>
-        <h3>প্রফেশনাল ফটো কার্ড জেনারেটর</h3>
+            <div class="control-group">
+                <label>পজিশন (Vertical Gap)</label>
+                <input type="range" id="posSlider" min="0" max="25" value="10" oninput="updatePreview()">
+            </div>
 
-        <!-- লোগো আপলোড -->
-        <div class="form-group">
-            <label>পোর্টাল লোগো (একবার আপলোড করলেই সেভ থাকবে):</label>
-            <input type="file" id="logoInput" accept="image/*" onchange="saveLogo(event)">
-            <div id="logoStatus" class="logo-status"></div>
-            <button type="button" onclick="clearLogo()" class="btn btn-secondary" style="padding: 6px; font-size: 13px; width: auto; margin-top: 5px;">লোগো পরিবর্তন করুন</button>
+            <div class="control-group">
+                <label>বিজ্ঞাপন ব্যানার</label>
+                <input type="checkbox" id="adToggle" checked onchange="toggleAd()">
+                <span style="font-size: 13px; color: var(--muted);">অ্যাড অন/অফ</span>
+            </div>
         </div>
 
-        <!-- খবরের ছবি -->
-        <div class="form-group">
-            <label>খবরের মূল ছবি আপলোড করুন:</label>
-            <input type="file" id="newsImageInput" accept="image/*">
-        </div>
-
-        <!-- বিজ্ঞাপন ছবি (ঐচ্ছিক) -->
-        <div class="form-group">
-            <label>বিজ্ঞাপন ব্যানার বা লোগো আপলোড (যদি থাকে):</label>
-            <input type="file" id="adImageInput" accept="image/*">
-        </div>
-
-        <!-- তারিখ -->
-        <div class="form-group">
-            <label>তারিখ:</label>
-            <input type="date" id="newsDate">
-        </div>
-
-        <!-- শিরোনাম -->
-        <div class="form-group">
-            <label>খবরের শিরোনাম লিখুন:</label>
-            <textarea id="newsHeadline" placeholder="এখানে খবরের শিরোনাম লিখুন..."></textarea>
-        </div>
-
-        <button class="btn" onclick="generateCard()">প্রফেশনাল কার্ড তৈরি করুন</button>
-
-        <!-- প্রিভিউ ও ডাউনলোড -->
-        <div class="preview-container">
-            <canvas id="cardCanvas" width="1080" height="1080" class="hidden"></canvas>
-            <br>
-            <a id="downloadBtn" class="btn hidden" style="background: #2e7d32; text-decoration: none; display: inline-block; box-sizing: border-box; margin-top: 15px;" download="vor-news-card.jpg">এইচডি (HD) ফটো কার্ড ডাউনলোড করুন</a>
-        </div>
-
-        <!-- পাসওয়ার্ড পরিবর্তন -->
-        <div style="margin-top: 40px; border-top: 1px solid #ddd; padding-top: 15px;">
-            <details>
-                <summary style="cursor: pointer; color: #555; font-weight: bold;">পাসওয়ার্ড পরিবর্তন করুন</summary>
-                <div style="margin-top: 10px;">
-                    <input type="password" id="newPassword" placeholder="নতুন পাসওয়ার্ড দিন" style="margin-bottom: 8px;">
-                    <button class="btn" style="background: #37474f;" onclick="changePassword()">পাসওয়ার্ড আপডেট করুন</button>
+        <div>
+            <div class="preview-card">
+                <div class="image-container">
+                    <div class="logo-badge">VOR</div>
                 </div>
-            </details>
+
+                <div class="ad-banner" id="adBanner">
+                    📢 বিজ্ঞাপনের ছবি/ব্যানার (ঐচ্ছিক স্পনসর স্পেস)
+                </div>
+
+                <div class="text-section" id="textSection">
+                    <div class="date-badge">তারিখ: ২৯/১০/২০২৬</div>
+                    
+                    <h3 class="headline" id="headlineText">
+                        লংমার্চের নামে জাতীয় সম্পদ অপচয় করছে চরমপন্থীরা: বিশেষ সংবাদ
+                    </h3>
+
+                    <div class="footer">
+                        <div class="footer-title">VOR Bangla News</div>
+                        <div class="footer-sub">voiceofrisingbangla.com | @voiceofrisingbangla</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    if (!localStorage.getItem('vor_admin_pass')) {
-        localStorage.setItem('vor_admin_pass', 'vor123');
-    }
+    <script>
+        function updatePreview() {
+            const size = document.getElementById('sizeSlider').value;
+            const pos = document.getElementById('posSlider').value;
+            const headline = document.getElementById('headlineText');
+            const section = document.getElementById('textSection');
 
-    window.onload = function() {
-        if (sessionStorage.getItem('vor_logged_in') === 'true') {
-            showGenerator();
-        }
-        checkStoredLogo();
-        document.getElementById('newsDate').valueAsDate = new Date();
-    };
-
-    function checkLogin() {
-        let pass = document.getElementById('adminPassword').value;
-        let savedPass = localStorage.getItem('vor_admin_pass');
-        if (pass === savedPass) {
-            sessionStorage.setItem('vor_logged_in', 'true');
-            showGenerator();
-        } else {
-            document.getElementById('loginError').innerText = 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।';
-        }
-    }
-
-    function showGenerator() {
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('generatorSection').classList.remove('hidden');
-    }
-
-    function logout() {
-        sessionStorage.removeItem('vor_logged_in');
-        document.getElementById('generatorSection').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
-        document.getElementById('adminPassword').value = '';
-        document.getElementById('loginError').innerText = '';
-    }
-
-    function changePassword() {
-        let newPass = document.getElementById('newPassword').value;
-        if (newPass.trim() !== '') {
-            localStorage.setItem('vor_admin_pass', newPass);
-            alert('পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!');
-            document.getElementById('newPassword').value = '';
-        } else {
-            alert('দয়া করে একটি নতুন পাসওয়ার্ড লিখুন।');
-        }
-    }
-
-    function saveLogo(event) {
-        let file = event.target.files[0];
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                localStorage.setItem('vor_logo', e.target.result);
-                checkStoredLogo();
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function checkStoredLogo() {
-        let logoStatus = document.getElementById('logoStatus');
-        if (localStorage.getItem('vor_logo')) {
-            logoStatus.innerText = '✓ লোগো সফলভাবে সেভ করা আছে।';
-        } else {
-            logoStatus.innerText = '⚠ কোনো লোগো সেভ করা নেই, দয়া করে লোগো আপলোড করুন।';
-        }
-    }
-
-    function clearLogo() {
-        localStorage.removeItem('vor_logo');
-        checkStoredLogo();
-        alert('লোগো মুছে ফেলা হয়েছে। নতুন লোগো আপলোড করুন।');
-    }
-
-    function generateCard() {
-        let headline = document.getElementById('newsHeadline').value;
-        let newsDate = document.getElementById('newsDate').value;
-        let newsImageInput = document.getElementById('newsImageInput');
-        let adImageInput = document.getElementById('adImageInput');
-        let storedLogo = localStorage.getItem('vor_logo');
-
-        if (!headline) {
-            alert('অনুগ্রহ করে খবরের শিরোনাম লিখুন!');
-            return;
+            headline.style.fontSize = size + 'px';
+            section.style.paddingTop = pos + 'px';
         }
 
-        let canvas = document.getElementById('cardCanvas');
-        let ctx = canvas.getContext('2d');
-        canvas.classList.remove('hidden');
-
-        // ১. ব্যাকগ্রাউন্ড (গাঢ় লাল থিম)
-        ctx.fillStyle = '#b71c1c';
-        ctx.fillRect(0, 0, 1080, 1080);
-
-        // খবরের ছবির ফ্রেম
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(30, 30, 1020, 560);
-
-        // ২. খবরের মূল ছবি রেন্ডার
-        if (newsImageInput.files && newsImageInput.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let img = new Image();
-                img.onload = function() {
-                    ctx.drawImage(img, 40, 40, 1000, 540);
-                    processAdAndLayout(ctx, headline, newsDate, storedLogo, adImageInput);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(newsImageInput.files[0]);
-        } else {
-            ctx.fillStyle = '#eaeaea';
-            ctx.fillRect(40, 40, 1000, 540);
-            ctx.fillStyle = '#666666';
-            ctx.font = 'bold 36px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('খবরের মূল ছবি এখানে থাকবে', 540, 310);
-            processAdAndLayout(ctx, headline, newsDate, storedLogo, adImageInput);
+        function toggleAd() {
+            const ad = document.getElementById('adBanner');
+            const checked = document.getElementById('adToggle').checked;
+            ad.style.display = checked ? 'block' : 'none';
         }
-    }
-
-    function processAdAndLayout(ctx, headline, newsDate, storedLogo, adImageInput) {
-        // যদি বিজ্ঞাপন দেওয়া থাকে, তা রেন্ডার করা
-        if (adImageInput.files && adImageInput.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let adImg = new Image();
-                adImg.onload = function() {
-                    // ছোট বিজ্ঞাপন ব্যানার ডানপাশে ওপরের ছবির ঠিক নিচে বা নির্দিষ্ট স্থানে
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(40, 585, 1000, 75);
-                    ctx.drawImage(adImg, 45, 590, 990, 65);
-                    drawCardElements(ctx, headline, newsDate, storedLogo, true);
-                };
-                adImg.src = e.target.result;
-            };
-            reader.readAsDataURL(adImageInput.files[0]);
-        } else {
-            drawCardElements(ctx, headline, newsDate, storedLogo, false);
-        }
-    }
-
-    function drawCardElements(ctx, headline, newsDate, storedLogo, hasAd) {
-        let startY = hasAd ? 670 : 610;
-        let boxHeight = hasAd ? 380 : 440;
-
-        // ৩. নিচের টাইটেল কার্ড ব্যাকগ্রাউন্ড
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(30, startY, 1020, boxHeight);
-
-        // ৪. পারফেক্ট ফন্ট সাইজ ও সুবিন্যস্ত শিরোনাম (বড় ও স্পষ্ট ফন্ট: 46px)
-        ctx.fillStyle = '#111111';
-        ctx.font = 'bold 46px sans-serif';
-        ctx.textAlign = 'left';
-        wrapText(ctx, headline, 55, startY + 80, 970, 58);
-
-        // ৫. ফুটার (পোর্টাল নাম ও ওয়েবসাইট)
-        ctx.strokeStyle = '#dddddd';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(55, startY + boxHeight - 55);
-        ctx.lineTo(1025, startY + boxHeight - 55);
-        ctx.stroke();
-
-        ctx.fillStyle = '#444444';
-        ctx.font = 'bold 20px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText('VOR Bangla News', 55, startY + boxHeight - 20);
-
-        ctx.textAlign = 'right';
-        ctx.fillText('voiceofrisingbangla.com | ⓕ 𝕏 📷 @voiceofrisingbangla', 1025, startY + boxHeight - 20);
-
-        // ৬. লোগো রেন্ডার (ডানপাশে ওপরের কোণায় গোল বৃত্ত বা প্রফেশনাল ব্যাকগ্রাউন্ড সহ)
-        if (storedLogo) {
-            let logoImg = new Image();
-            logoImg.onload = function() {
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(840, 40, 190, 100);
-                ctx.drawImage(logoImg, 845, 43, 180, 94);
-                finalizeDownload();
-            };
-            logoImg.src = storedLogo;
-        } else {
-            finalizeDownload();
-        }
-    }
-
-    function wrapText(context, text, x, y, maxWidth, lineHeight) {
-        let words = text.split(' ');
-        let line = '';
-        for (let n = 0; n < words.length; n++) {
-            let testLine = line + words[n] + ' ';
-            let metrics = context.measureText(testLine);
-            let testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
-                context.fillText(line, x, y);
-                line = words[n] + ' ';
-                y += lineHeight;
-            } else {
-                line = testLine;
-            }
-        }
-        context.fillText(line, x, y);
-    }
-
-    function finalizeDownload() {
-        let canvas = document.getElementById('cardCanvas');
-        let link = document.getElementById('downloadBtn');
-        link.href = canvas.toDataURL('image/jpeg', 1.0);
-        link.classList.remove('hidden');
-    }
-</script>
-
+    </script>
 </body>
 </html>
