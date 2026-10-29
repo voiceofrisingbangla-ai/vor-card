@@ -418,8 +418,12 @@
         let ctx = canvas.getContext('2d');
         canvas.classList.remove('hidden');
 
-        // ১. ব্যাকগ্রাউন্ড থিম (১০৮০ x ১০৮০)
-        ctx.fillStyle = themeBg;
+        // ১. প্রিমিয়াম ইউনিক নিউজ গ্রেডিয়েন্ট ব্যাকগ্রাউন্ড (১০৮০ x ১০৮০)
+        let gradient = ctx.createLinearGradient(0, 0, 0, 1080);
+        gradient.addColorStop(0, themeBg);
+        gradient.addColorStop(0.5, themeBg);
+        gradient.addColorStop(1, '#111827'); // নিচের দিকে হালকা ডার্ক নিউজ শেড
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 1080, 1080);
 
         // ২. মূল ছবি রেন্ডার
@@ -449,6 +453,7 @@
         let textY = parseInt(document.getElementById('textYPos').value);
         let fSize = parseInt(document.getElementById('fontSize').value);
         let showCommentTag = document.getElementById('commentTag').checked;
+        let hasAd = adImageInput.files && adImageInput.files[0];
 
         // 🌟 ৩. ক্যাটাগরি ব্যাজ — ছবির ওপর বাম দিকে (উপরে)
         if (catBadge) {
@@ -506,9 +511,8 @@
             ctx.fillText(subHeadline, 540, lastY + 30);
         }
 
-        // ৭. ফুটার ব্র্যান্ডিং
-        let hasAd = adImageInput.files && adImageInput.files[0];
-        let footerY = hasAd ? 930 : 980;
+        // ৭. ফুটার ব্র্যান্ডিং (অ্যাড থাকলে উপরে উঠবে, না থাকলে নিচে থাকবে)
+        let footerY = hasAd ? 910 : 970;
 
         ctx.fillStyle = '#ffcccc';
         ctx.font = 'bold 22px sans-serif';
@@ -519,15 +523,15 @@
         ctx.font = '20px sans-serif';
         ctx.fillText('voiceofrisingbangla.com  |  ⓕ 𝕏 📷 @voiceofrisingbangla', 540, footerY + 30);
 
-        // ৮. অ্যাড ব্যানার (একদম নিচে)
+        // ৮. অ্যাড ব্যানার (কার্ডের একদম নিচে - ঐচ্ছিক)
         if (hasAd) {
             let reader = new FileReader();
             reader.onload = function(e) {
                 let adImg = new Image();
                 adImg.onload = function() {
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 980, 1080, 100);
-                    ctx.drawImage(adImg, 10, 985, 1060, 90);
+                    ctx.fillRect(0, 975, 1080, 105);
+                    ctx.drawImage(adImg, 15, 980, 1050, 95);
                     drawLogo(ctx, storedLogo);
                 };
                 adImg.src = e.target.result;
