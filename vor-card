@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Of Rising Bangla - Auto Photo Card Generator</title>
+    <style>
+        :root {
+            --primary-red: #b71c1c;
+            --dark-red: #8b0000;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2, h3 {
+            color: var(--primary-red);
+            text-align: center;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        input[type="text"], input[type="password"], input[type="date"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            height: 90px;
+        }
+        input[type="file"] {
+            border: 1px dashed #b71c1c;
+            padding: 10px;
+            width: 100%;
+            border-radius: 6px;
+            background: #fff9f9;
+            box-sizing: border-box;
+        }
+        .btn {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: var(--dark-red);
+        }
+        .btn-secondary {
+            background: #555;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: #333;
+        }
+        .preview-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .hidden {
+            display: none !important;
+        }
+        .logo-status {
+            font-size: 13px;
+            color: #2e7d32;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+        .logout-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffebee;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- লোগিন সেকশন -->
+    <div id="loginSection">
+        <h2>🔒 এডমিন লগইন</h2>
+        <p style="text-align: center; color: #666; font-size: 14px;">ফটো কার্ড জেনারেটর ব্যবহার করতে পাসওয়ার্ড দিন</p>
+        <div class="form-group">
+            <label>পাসওয়ার্ড দিন:</label>
+            <input type="password" id="adminPassword" placeholder="ডিফল্ট পাসওয়ার্ড: vor123">
+        </div>
+        <button class="btn" onclick="checkLogin()">লগইন করুন</button>
+        <p id="loginError" style="color: red; text-align: center; font-size: 14px; margin-top: 10px;"></p>
+    </div>
+
+    <!-- মূল জেনারেটর প্যানেল -->
+    <div id="generatorSection" class="hidden">
+        <div class="logout-bar">
+            <span>স্বাগতম, <b>Voice Of Rising Bangla</b> এডমিন</span>
+            <button onclick="logout()" style="background: #c62828; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer;">লগআউট</button>
+        </div>
+
+        <h2>Voice Of Rising Bangla</h2>
+        <h3>অটো ফটো কার্ড জেনারেটর</h3>
+
+        <!-- লোগো আপলোড (একবার করলে সেভ থাকবে) -->
+        <div class="form-group">
+            <label>পোর্টাল লোগো (একবার আপলোড করলেই আর লাগবে না):</label>
+            <input type="file" id="logoInput" accept="image/*" onchange="saveLogo(event)">
+            <div id="logoStatus" class="logo-status"></div>
+            <button type="button" onclick="clearLogo()" class="btn btn-secondary" style="padding: 6px; font-size: 13px; width: auto; margin-top: 5px;">লোগো পরিবর্তন করুন</button>
+        </div>
+
+        <!-- খবরের ছবি -->
+        <div class="form-group">
+            <label>খবরের মূল ছবি আপলোড করুন:</label>
+            <input type="file" id="newsImageInput" accept="image/*">
+        </div>
+
+        <!-- তারিখ -->
+        <div class="form-group">
+            <label>তারিখ:</label>
+            <input type="date" id="newsDate">
+        </div>
+
+        <!-- শিরোনাম -->
+        <div class="form-group">
+            <label>খবরের শিরোনাম লিখুন:</label>
+            <textarea id="newsHeadline" placeholder="এখানে খবরের শিরোনাম লিখুন..."></textarea>
+        </div>
+
+        <button class="btn" onclick="generateCard()">ফটো কার্ড তৈরি করুন</button>
+
+        <!-- প্রিভিউ ও ডাউনলোড -->
+        <div class="preview-container">
+            <canvas id="cardCanvas" width="1080" height="1080" class="hidden"></canvas>
+            <br>
+            <a id="downloadBtn" class="btn hidden" style="background: #2e7d32; text-decoration: none; display: inline-block; box-sizing: border-box; margin-top: 15px;" download="vor-news-card.jpg">ফটো কার্ড ডাউনলোড করুন (HD)</a>
+        </div>
+
+        <!-- পাসওয়ার্ড পরিবর্তনের অপশন -->
+        <div style="margin-top: 40px; border-top: 1px solid #ddd; padding-top: 15px;">
+            <details>
+                <summary style="cursor: pointer; color: #555; font-weight: bold;">পাসওয়ার্ড পরিবর্তন করুন</summary>
+                <div style="margin-top: 10px;">
+                    <input type="password" id="newPassword" placeholder="নতুন পাসওয়ার্ড দিন" style="margin-bottom: 8px;">
+                    <button class="btn" style="background: #37474f;" onclick="changePassword()">পাসওয়ার্ড আপডেট করুন</button>
+                </div>
+            </details>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ডিফল্ট পাসওয়ার্ড
+    if (!localStorage.getItem('vor_admin_pass')) {
+        localStorage.setItem('vor_admin_pass', 'vor123');
+    }
+
+    // অটো লগইন চেক
+    window.onload = function() {
+        if (sessionStorage.getItem('vor_logged_in') === 'true') {
+            showGenerator();
+        }
+        checkStoredLogo();
+        
+        // আজকের তারিখ অটো সেট করা
+        document.getElementById('newsDate').valueAsDate = new Date();
+    };
+
+    function checkLogin() {
+        let pass = document.getElementById('adminPassword').value;
+        let savedPass = localStorage.getItem('vor_admin_pass');
+        if (pass === savedPass) {
+            sessionStorage.setItem('vor_logged_in', 'true');
+            showGenerator();
+        } else {
+            document.getElementById('loginError').innerText = 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।';
+        }
+    }
+
+    function showGenerator() {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('generatorSection').classList.remove('hidden');
+    }
+
+    function logout() {
+        sessionStorage.removeItem('vor_logged_in');
+        document.getElementById('generatorSection').classList.add('hidden');
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('loginError').innerText = '';
+    }
+
+    function changePassword() {
+        let newPass = document.getElementById('newPassword').value;
+        if (newPass.trim() !== '') {
+            localStorage.setItem('vor_admin_pass', newPass);
+            alert('পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে!');
+            document.getElementById('newPassword').value = '';
+        } else {
+            alert('দয়া করে একটি নতুন পাসওয়ার্ড লিখুন।');
+        }
+    }
+
+    // লোগো লোকাল স্টোরেজে সেভ করা
+    function saveLogo(event) {
+        let file = event.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                localStorage.setItem('vor_logo', e.target.result);
+                checkStoredLogo();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function checkStoredLogo() {
+        let logoStatus = document.getElementById('logoStatus');
+        if (localStorage.getItem('vor_logo')) {
+            logoStatus.innerText = '✓ লোগো সফলভাবে সেভ করা আছে।';
+        } else {
+            logoStatus.innerText = '⚠ কোনো লোগো সেভ করা নেই, দয়া করে লোগো আপলোড করুন।';
+        }
+    }
+
+    function clearLogo() {
+        localStorage.removeItem('vor_logo');
+        checkStoredLogo();
+        alert('লোগো মুছে ফেলা হয়েছে। নতুন লোগো আপলোড করুন।');
+    }
+
+    // কার্ড জেনারেশন ক্যানভাস লজিক
+    function generateCard() {
+        let headline = document.getElementById('newsHeadline').value;
+        let newsDate = document.getElementById('newsDate').value;
+        let newsImageInput = document.getElementById('newsImageInput');
+        let storedLogo = localStorage.getItem('vor_logo');
+
+        if (!headline) {
+            alert('অনুগ্রহ করে খবরের শিরোনাম লিখুন!');
+            return;
+        }
+
+        let canvas = document.getElementById('cardCanvas');
+        let ctx = canvas.getContext('2d');
+
+        // ক্যানভাস দৃশ্যমান করা
+        canvas.classList.remove('hidden');
+
+        // ১. ব্যাকগ্রাউন্ড লাল থিম
+        ctx.fillStyle = '#b71c1c';
+        ctx.fillRect(0, 0, 1080, 1080);
+
+        // ওপরের সাদা ফ্রেম (ছবির জন্য)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(35, 35, 1010, 610);
+
+        // ২. খবরের ছবি আঁকা (যদি আপলোড করা থাকে)
+        if (newsImageInput.files && newsImageInput.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 45, 45, 990, 590);
+                    drawBottomDesign(ctx, headline, newsDate, storedLogo);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(newsImageInput.files[0]);
+        } else {
+            // ছবি না থাকলে ডিফল্ট প্লেসহোল্ডার
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(45, 45, 990, 590);
+            ctx.fillStyle = '#777777';
+            ctx.font = 'bold 36px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('খবরের ছবি এখানে প্রদর্শিত হবে', 540, 345);
+            drawBottomDesign(ctx, headline, newsDate, storedLogo);
+        }
+    }
+
+    function drawBottomDesign(ctx, headline, newsDate, storedLogo) {
+        // ৩. নিচের টাইটেল বক্স (সাদা ব্যাকগ্রাউন্ড)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(35, 665, 1010, 310);
+
+        // ৪. তারিখ ও ক্যাটাগরি বার
+        ctx.fillStyle = '#b71c1c';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('তারিখ: ' + formatDate(newsDate), 65, 715);
+
+        // ৫. শিরোনাম টেক্সট প্রিন্ট ও অটো র‍্যাপিং
+        ctx.fillStyle = '#111111';
+        ctx.font = 'bold 44px sans-serif';
+        wrapText(ctx, headline, 65, 785, 950, 58);
+
+        // ৬. ফুটার (ফেসবুক ও ওয়েবসাইট ইউআরএল)
+        ctx.fillStyle = '#555555';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Facebook + Website: voiceofrisingbangla', 540, 955);
+
+        // ৭. লোগো আঁকা (যদি সেভ করা থাকে)
+        if (storedLogo) {
+            let logoImg = new Image();
+            logoImg.onload = function() {
+                // ওপরের ডান কোণায় লোগো পজিশন
+                ctx.drawImage(logoImg, 830, 50, 200, 110);
+                finalizeDownload();
+            };
+            logoImg.src = storedLogo;
+        } else {
+            finalizeDownload();
+        }
+    }
+
+    // টেক্সট ছোট করার ফাংশন যাতে লাইন ওভারফ্লো না হয়
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        let words = text.split(' ');
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+            let testLine = line + words[n] + ' ';
+            let metrics = context.measureText(testLine);
+            let testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, y);
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        let parts = dateStr.split('-');
+        return parts[2] + '/' + parts[1] + '/' + parts[0];
+    }
+
+    function finalizeDownload() {
+        let canvas = document.getElementById('cardCanvas');
+        let link = document.getElementById('downloadBtn');
+        link.href = canvas.toDataURL('image/jpeg', 1.0);
+        link.classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
