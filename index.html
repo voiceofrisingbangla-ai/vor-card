@@ -259,9 +259,10 @@
             <div class="control-col form-group">
                 <div class="slider-label">
                     <label>টেক্সট পজিশন (উপরে / নিচে):</label>
-                    <span id="posVal">670px</span>
+                    <span id="posVal">720px</span>
                 </div>
-                <input type="range" id="textYPos" min="620" max="820" value="670" oninput="updateControls()">
+                <!-- ডিফল্ট ভ্যালু 670 থেকে বাড়িয়ে 720 করা হয়েছে, যাতে টাইটেল আরও নিচে থাকে -->
+                <input type="range" id="textYPos" min="620" max="860" value="720" oninput="updateControls()">
             </div>
             <div class="control-col form-group">
                 <div class="slider-label">
@@ -422,7 +423,7 @@
         let gradient = ctx.createLinearGradient(0, 0, 0, 1080);
         gradient.addColorStop(0, themeBg);
         gradient.addColorStop(0.5, themeBg);
-        gradient.addColorStop(1, '#111827'); // নিচের দিকে হালকা ডার্ক নিউজ শেড
+        gradient.addColorStop(1, '#111827');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 1080, 1080);
 
@@ -511,7 +512,7 @@
             ctx.fillText(subHeadline, 540, lastY + 30);
         }
 
-        // ৭. ফুটার ব্র্যান্ডিং (অ্যাড থাকলে উপরে উঠবে, না থাকলে নিচে থাকবে)
+        // ৭. ফুটার ব্র্যান্ডিং
         let footerY = hasAd ? 910 : 970;
 
         ctx.fillStyle = '#ffcccc';
@@ -523,7 +524,7 @@
         ctx.font = '20px sans-serif';
         ctx.fillText('voiceofrisingbangla.com  |  ⓕ 𝕏 📷 @voiceofrisingbangla', 540, footerY + 30);
 
-        // ৮. অ্যাড ব্যানার (কার্ডের একদম নিচে - ঐচ্ছিক)
+        // ৮. অ্যাড ব্যানার (কার্ডের একদম নিচে)
         if (hasAd) {
             let reader = new FileReader();
             reader.onload = function(e) {
