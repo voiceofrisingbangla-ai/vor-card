@@ -244,7 +244,7 @@
         <div class="form-group">
             <label class="checkbox-label">
                 <input type="checkbox" id="commentTag" onchange="generateCard()">
-                <b>"► বিস্তারিত কমেন্টে"</b> ট্যাগ যুক্ত করুন (শিরোনামের ঠিক উপরে দেখাবে)
+                <b>"► বিস্তারিত কমেন্টে"</b> ট্যাগ যুক্ত করুন (থিমের একদম মাথায় দেখাবে)
             </label>
         </div>
 
@@ -259,9 +259,10 @@
             <div class="control-col form-group">
                 <div class="slider-label">
                     <label>টেক্সট পজিশন (উপরে / নিচে):</label>
-                    <span id="posVal">730px</span>
+                    <span id="posVal">780px</span>
                 </div>
-                <input type="range" id="textYPos" min="640" max="860" value="730" oninput="updateControls()">
+                <!-- টাইটেলের পজিশন আরও নিচে নামিয়ে ফাঁকা জায়গা বাড়িয়ে দেওয়া হয়েছে -->
+                <input type="range" id="textYPos" min="680" max="900" value="780" oninput="updateControls()">
             </div>
             <div class="control-col form-group">
                 <div class="slider-label">
@@ -474,7 +475,7 @@
         let showCommentTag = document.getElementById('commentTag').checked;
         let hasAd = adImageInput.files && adImageInput.files[0];
 
-        // 🌟 ৩. ক্যাটাগরি ব্যাজ — ছবির ওপর বাম দিকে (উপরে)
+        // 🌟 ৩. ক্যাটাগরি ব্যাজ — ছবির ঠিক ওপরে (বামে)
         if (catBadge) {
             ctx.fillStyle = '#b71c1c';
             ctx.fillRect(30, 30, 230, 48);
@@ -484,41 +485,39 @@
             ctx.fillText(catBadge, 145, 62);
         }
 
-        // 🌟 ৪. তারিখ — ছবির ঠিক নিচে নির্দিষ্ট দূরত্বে ফিক্সড (বামপাশে)
+        // 🌟 ৪. তারিখ — ছবির ঠিক নিচে থিমের একদম মাথায় ফিক্সড (বামপাশে)
         if (newsDate) {
             let formattedDate = formatDate(newsDate);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-            ctx.fillRect(60, 645, 220, 38);
+            ctx.fillRect(50, 638, 210, 36);
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 19px sans-serif';
+            ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('তারিখ: ' + formattedDate, 75, 671);
+            ctx.fillText('তারিখ: ' + formattedDate, 63, 663);
         }
 
-        // 🌟 ৫. "বিস্তারিত কমেন্টে" ট্যাগ — শিরোনামের তুলনায় যথেষ্ট ওপরে সেট করা হয়েছে (যাতে গ্যাপ সুন্দর থাকে)
-        let headlineStartY = textY;
+        // 🌟 ৫. "বিস্তারিত কমেন্টে" ট্যাগ — থিমের একদম মাথায় (তারিখের সোজা সোজাসুজি ডানপাশে)
         if (showCommentTag) {
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(430, textY - 75, 220, 36);
+            ctx.fillRect(275, 638, 220, 36);
             ctx.fillStyle = '#b71c1c';
             ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('► বিস্তারিত কমেন্টে', 540, textY - 51);
-            headlineStartY = textY; // শিরোনাম এবং ট্যাগের মাঝে পর্যাপ্ত ফাঁকা জায়গা রাখা হয়েছে
+            ctx.fillText('► বিস্তারিত কমেন্টে', 385, 663);
         }
 
-        // ৬. খবরের শিরোনাম (মাঝ বরাবর)
-        let lastY = headlineStartY;
+        // ৬. খবরের শিরোনাম (মাঝ বরাবর এবং আরও নিচে নামানো)
+        let lastY = textY;
         if (headline) {
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold ' + fSize + 'px sans-serif';
             ctx.textAlign = 'center';
-            lastY = wrapTextCenter(ctx, headline, 540, headlineStartY, 960, fSize + 15);
+            lastY = wrapTextCenter(ctx, headline, 540, textY, 960, fSize + 15);
         } else {
             ctx.fillStyle = '#ffcccc';
             ctx.font = 'italic 36px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('এখানে খবরের শিরোনাম প্রদর্শিত হবে', 540, headlineStartY);
+            ctx.fillText('এখানে খবরের শিরোনাম প্রদর্শিত হবে', 540, textY);
             lastY += 30;
         }
 
@@ -631,4 +630,4 @@
 </script>
 
 </body>
-</html>
+            </html>
