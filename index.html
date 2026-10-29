@@ -261,7 +261,6 @@
                     <label>টেক্সট পজিশন (উপরে / নিচে):</label>
                     <span id="posVal">720px</span>
                 </div>
-                <!-- ডিফল্ট ভ্যালু 670 থেকে বাড়িয়ে 720 করা হয়েছে, যাতে টাইটেল আরও নিচে থাকে -->
                 <input type="range" id="textYPos" min="620" max="860" value="720" oninput="updateControls()">
             </div>
             <div class="control-col form-group">
@@ -466,27 +465,27 @@
             ctx.fillText(catBadge, 145, 62);
         }
 
-        // ৪. তারিখ (টেক্সটের ওপর বামপাশে)
+        // 🌟 ৪. তারিখ — ছবির ঠিক নিচে নির্দিষ্ট দূরত্বে ফিক্সড (বামপাশে)
         if (newsDate) {
             let formattedDate = formatDate(newsDate);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-            ctx.fillRect(60, textY - 50, 220, 38);
+            ctx.fillRect(60, 645, 220, 38);
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 19px sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('তারিখ: ' + formattedDate, 75, textY - 24);
+            ctx.fillText('তারিখ: ' + formattedDate, 75, 671);
         }
 
-        // ৫. "বিস্তারিত কমেন্টে" ট্যাগ — শিরোনামের ঠিক উপরে মাঝ বরাবর
+        // 🌟 ৫. "বিস্তারিত কমেন্টে" ট্যাগ — শিরোনামের ঠিক উপরে মাঝ বরাবর
         let headlineStartY = textY;
         if (showCommentTag) {
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(430, textY - 50, 220, 38);
+            ctx.fillRect(430, textY - 45, 220, 36);
             ctx.fillStyle = '#b71c1c';
             ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('► বিস্তারিত কমেন্টে', 540, textY - 24);
-            headlineStartY = textY + 20; 
+            ctx.fillText('► বিস্তারিত কমেন্টে', 540, textY - 21);
+            headlineStartY = textY + 15; 
         }
 
         // ৬. খবরের শিরোনাম (মাঝ বরাবর)
@@ -613,4 +612,4 @@
 </script>
 
 </body>
-</html>
+    </html>
