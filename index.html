@@ -195,16 +195,16 @@
                     </select>
                 </div>
                 <div class="control-col form-group">
-                    <label>ক্যাটাগরি ব্যাজ (ঐচ্ছিক):</label>
+                    <label>ক্যাটাগরি ব্যাজ (উপরে দেখাবে):</label>
                     <select id="categoryBadge" onchange="generateCard()">
                         <option value="">-- কোনো ব্যাজ নেই --</option>
-                        <option value="ব্রেকিং নিউজ">🚨 ব্রেকিং নিউজ</option>
-                        <option value="বিশেষ সংবাদ">★ বিশেষ সংবাদ</option>
-                        <option value="লাইভ">🔴 লাইভ আপডেট</option>
-                        <option value="এক্সক্লুসিভ">⚡ এক্সক্লুসিভ</option>
-                        <option value="জাতীয়">🏛️ জাতীয়</option>
-                        <option value="আন্তর্জাতিক">🌐 আন্তর্জাতিক</option>
-                        <option value="খেলাধুলা">⚽ খেলাধুলা</option>
+                        <option value="🚨 ব্রেকিং নিউজ">🚨 ব্রেকিং নিউজ</option>
+                        <option value="★ বিশেষ সংবাদ">★ বিশেষ সংবাদ</option>
+                        <option value="🔴 লাইভ আপডেট">🔴 লাইভ আপডেট</option>
+                        <option value="⚡ এক্সক্লুসিভ">⚡ এক্সক্লুসিভ</option>
+                        <option value="🏛️ জাতীয়">🏛️ জাতীয়</option>
+                        <option value="🌐 আন্তর্জাতিক">🌐 আন্তর্জাতিক</option>
+                        <option value="⚽ খেলাধুলা">⚽ খেলাধুলা</option>
                     </select>
                 </div>
             </div>
@@ -343,7 +343,6 @@
         }
     }
 
-    // ক্লিপবোর্ড থেকে সরাসরি টেক্সট পেস্ট করার ফাংশন
     async function pasteToField(fieldId) {
         try {
             const text = await navigator.clipboard.readText();
@@ -389,7 +388,6 @@
         generateCard();
     }
 
-    // ড্রাফট সেভ ও লোড
     function saveDraft() {
         localStorage.setItem('draft_headline', document.getElementById('newsHeadline').value);
         localStorage.setItem('draft_subheadline', document.getElementById('newsSubHeadline').value);
@@ -405,7 +403,7 @@
     }
 
     function generateCard() {
-        saveDraft(); // ইনপুট নেওয়ার সময় ড্রাফট সেভ থাকবে
+        saveDraft();
 
         let headline = document.getElementById('newsHeadline').value;
         let subHeadline = document.getElementById('newsSubHeadline').value;
@@ -420,7 +418,7 @@
         let ctx = canvas.getContext('2d');
         canvas.classList.remove('hidden');
 
-        // ১. ডায়নামিক ব্যাকগ্রাউন্ড থিম (১০৮০ x ১০৮০)
+        // ১. ব্যাকগ্রাউন্ড থিম (১০৮০ x ১০৮০)
         ctx.fillStyle = themeBg;
         ctx.fillRect(0, 0, 1080, 1080);
 
@@ -452,40 +450,40 @@
         let fSize = parseInt(document.getElementById('fontSize').value);
         let showCommentTag = document.getElementById('commentTag').checked;
 
-        // ৩. তারিখ ও ক্যাটাগরি ব্যাজ (এক সাইডে বামে)
+        // 🌟 ৩. ক্যাটাগরি ব্যাজ — ছবির ওপর বাম দিকে (উপরে)
+        if (catBadge) {
+            ctx.fillStyle = '#b71c1c';
+            ctx.fillRect(30, 30, 230, 48);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(catBadge, 145, 62);
+        }
+
+        // ৪. তারিখ (টেক্সটের ওপর বামপাশে)
         if (newsDate) {
             let formattedDate = formatDate(newsDate);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            ctx.fillRect(50, textY - 50, 240, 38);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            ctx.fillRect(60, textY - 50, 220, 38);
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 19px sans-serif';
             ctx.textAlign = 'left';
-            ctx.fillText('তারিখ: ' + formattedDate, 65, textY - 24);
+            ctx.fillText('তারিখ: ' + formattedDate, 75, textY - 24);
         }
 
-        // ক্যাটাগরি ব্যাজ (যদি সিলেক্ট করা থাকে)
-        if (catBadge) {
-            ctx.fillStyle = '#ff1744';
-            ctx.fillRect(305, textY - 50, 180, 38);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 18px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(catBadge, 395, textY - 24);
-        }
-
-        // ৪. "বিস্তারিত কমেন্টে" ট্যাগ - শিরোনামের ঠিক উপরে মাঝ বরাবর
+        // ৫. "বিস্তারিত কমেন্টে" ট্যাগ — শিরোনামের ঠিক উপরে মাঝ বরাবর
         let headlineStartY = textY;
         if (showCommentTag) {
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(510, textY - 50, 190, 38);
+            ctx.fillRect(430, textY - 50, 220, 38);
             ctx.fillStyle = '#b71c1c';
-            ctx.font = 'bold 17px sans-serif';
+            ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('► বিস্তারিত কমেন্টে', 605, textY - 24);
+            ctx.fillText('► বিস্তারিত কমেন্টে', 540, textY - 24);
             headlineStartY = textY + 20; 
         }
 
-        // ৫. খবরের শিরোনাম (মাঝ বরাবর সেন্টার অ্যালাইনমেন্ট)
+        // ৬. খবরের শিরোনাম (মাঝ বরাবর)
         let lastY = headlineStartY;
         if (headline) {
             ctx.fillStyle = '#ffffff';
@@ -500,15 +498,15 @@
             lastY += 30;
         }
 
-        // সাব-হেডিং রেন্ডার (যদি থাকে)
+        // সাব-হেডিং রেন্ডার
         if (subHeadline) {
-            ctx.fillStyle = '#fef08a'; // হাল্কা হলুদ রঙ সাব-টাইটেলের জন্য
+            ctx.fillStyle = '#fef08a';
             ctx.font = '600 24px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(subHeadline, 540, lastY + 30);
         }
 
-        // ৬. ফুটার ব্র্যান্ডিং
+        // ৭. ফুটার ব্র্যান্ডিং
         let hasAd = adImageInput.files && adImageInput.files[0];
         let footerY = hasAd ? 930 : 980;
 
@@ -521,7 +519,7 @@
         ctx.font = '20px sans-serif';
         ctx.fillText('voiceofrisingbangla.com  |  ⓕ 𝕏 📷 @voiceofrisingbangla', 540, footerY + 30);
 
-        // ৭. অ্যাড ব্যানার (একদম নিচে - ঐচ্ছিক)
+        // ৮. অ্যাড ব্যানার (একদম নিচে)
         if (hasAd) {
             let reader = new FileReader();
             reader.onload = function(e) {
@@ -541,7 +539,7 @@
     }
 
     function drawLogo(ctx, storedLogo) {
-        // ৮. বৃত্তাকার লোগো (ওপরের ডানপাশে)
+        // ৯. বৃত্তাকার লোগো (ওপরের ডানপাশে)
         if (storedLogo) {
             let logoImg = new Image();
             logoImg.onload = function() {
