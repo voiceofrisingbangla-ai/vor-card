@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Of Rising Bangla - News Card Generator</title>
+    <title>Voice Of Rising Bangla - Pro News Card Generator</title>
     <style>
         :root {
             --primary-red: #8b0000;
@@ -41,7 +41,7 @@
             margin-bottom: 5px;
             color: #444;
         }
-        input[type="text"], input[type="password"], input[type="date"], textarea {
+        input[type="text"], input[type="password"], input[type="date"], textarea, input[type="url"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -129,6 +129,13 @@
             font-weight: normal;
             cursor: pointer;
         }
+        .link-fetch-box {
+            background: #fdf2f2;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -164,10 +171,20 @@
             <button type="button" onclick="clearLogo()" class="btn btn-secondary" style="padding: 6px; font-size: 13px; width: auto; margin-top: 5px;">লোগো পরিবর্তন করুন</button>
         </div>
 
+        <!-- নিউজ লিংক অটো-ফেচ অপশন -->
+        <div class="link-fetch-box">
+            <label style="color: var(--brand-red);">🔗 নিউজ লিংক থেকে ডেটা লোড করুন (ঐচ্ছিক):</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="url" id="newsUrl" placeholder="https://example.com/news-link">
+                <button type="button" class="btn" style="width: 140px; padding: 8px;" onclick="fetchNewsFromLink()">লোড করুন</button>
+            </div>
+            <small style="color: #666; display: block; margin-top: 5px;">* নোট: কিছু ওয়েবসাইট ব্রাউজার সিকিউরিটির কারণে সরাসরি লিংক ফেচ করতে না দিলে নিচে ম্যানুয়ালি টাইটেল ও ছবি দিতে পারবেন।</small>
+        </div>
+
         <!-- খবরের ছবি -->
         <div class="form-group">
-            <label>খবরের মূল ছবি আপলোড করুন (একাধিক করা যাবে):</label>
-            <input type="file" id="newsImageInput" accept="image/*" multiple onchange="generateCard()">
+            <label>খবরের মূল ছবি আপলোড করুন:</label>
+            <input type="file" id="newsImageInput" accept="image/*" onchange="generateCard()">
         </div>
 
         <!-- তারিখ -->
@@ -309,8 +326,67 @@
     function clearLogo() {
         localStorage.removeItem('vor_logo');
         checkStoredLogo();
-        alert('লোগো মুছে ফেলা হয়েছে। নতুন লোগো আপলোড করুন।');
+        alert('logo মুছে ফেলা হয়েছে।');
         generateCard();
+    }
+
+    // নিউজ লিংক থেকে মেটা ডেটা ফেচ করার ফাংশন (AllOrigins প্রক্সি ব্যবহার করে CORS বাইপাস করার জন্য)
+    function fetchNewsFromLink() {
+        let url = document.getElementById('newsUrl').value.trim();
+        if (!url) {
+            alert('দয়া করে একটি নিউজ লিংক দিন।');
+            return;
+        }
+
+        alert('লিংক থেকে ডেটা সংগ্রহ করা হচ্ছে...');
+        let proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+
+        fetch(proxyUrl)
+            .then(response => response.json())
+            .then(data => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(data.contents, 'text/html');
+
+                // টাইটেল সংগ্রহ (OpenGraph বা সাধারণ title থেকে)
+                let title = '';
+                let ogTitle = doc.querySelector('meta[property="og:title"]');
+                if (ogTitle) {
+                    title = ogTitle.getAttribute('content');
+                } else if (doc.querySelector('title')) {
+                    title = doc.querySelector('title').innerText;
+                }
+
+                if (title) {
+                    document.getElementById('newsHeadline').value = title;
+                }
+
+                // ছবি সংগ্রহ (OpenGraph image থেকে)
+                let ogImage = doc.querySelector('meta[property="og:image"]');
+                if (ogImage) {
+                    let imageUrl = ogImage.getAttribute('content');
+                    // ইমেজ ইউআরএল থেকে ক্যানভাসে লোড করার চেষ্টা
+                    loadExternalImageToCanvas(imageUrl);
+                }
+
+                generateCard();
+                alert('সফলভাবে নিউজ টাইটেল লোড হয়েছে!');
+            })
+            .catch(error => {
+                console.error('Error fetching news:', error);
+                alert('দুঃখিত, এই লিংক থেকে সরাসরি ডেটা ফেচ করা সম্ভব হয়নি। দয়া করে টাইটেল ও ছবি ম্যানুয়ালি দিন।');
+            });
+    }
+
+    // এক্সটার্নাল ইমেজ ইউআরএল লোড করার ফাংশন
+    let externalImgObj = null;
+    function loadExternalImageToCanvas(imgUrl) {
+        let img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = function() {
+            externalImgObj = img;
+            generateCard();
+        };
+        img.src = imgUrl;
     }
 
     function updateControls() {
@@ -330,11 +406,11 @@
         let ctx = canvas.getContext('2d');
         canvas.classList.remove('hidden');
 
-        // ১. লাল ব্যাকগ্রাউন্ড (১০৮০ x ১০৮০ পিক্সেল)
+        // ১. লাল ব্যাকগ্রাউন্ড (১০৮০ x ১০৮০)
         ctx.fillStyle = '#8b0000';
         ctx.fillRect(0, 0, 1080, 1080);
 
-        // ২. মূল খবর পিকচার রেন্ডার
+        // ২. মূল ছবি রেন্ডার (আপলোড করা ফাইল অথবা লিংক থেকে আনা ছবি)
         if (newsImageInput.files && newsImageInput.files[0]) {
             let reader = new FileReader();
             reader.onload = function(e) {
@@ -346,13 +422,16 @@
                 img.src = e.target.result;
             };
             reader.readAsDataURL(newsImageInput.files[0]);
+        } else if (externalImgObj) {
+            ctx.drawImage(externalImgObj, 0, 0, 1080, 620);
+            drawCardDetails(ctx, headline, newsDate, storedLogo, adImageInput);
         } else {
             ctx.fillStyle = '#cccccc';
             ctx.fillRect(0, 0, 1080, 620);
             ctx.fillStyle = '#333333';
             ctx.font = 'bold 36px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('খবরের মূল ছবি এখানে থাকবে', 540, 310);
+            ctx.fillText('খবরের মূল ছবি এখানে থাকবে (অথবা লিংক দিন)', 540, 310);
             drawCardDetails(ctx, headline, newsDate, storedLogo, adImageInput);
         }
     }
@@ -362,7 +441,7 @@
         let fSize = parseInt(document.getElementById('fontSize').value);
         let showCommentTag = document.getElementById('commentTag').checked;
 
-        // ৩. তারিখ এক সাইডে (বাম পাশে সুবিন্যস্তভাবে)
+        // ৩. তারিখ এক সাইডে (বাম পাশে)
         if (newsDate) {
             let formattedDate = formatDate(newsDate);
             ctx.fillStyle = '#b71c1c';
@@ -382,7 +461,7 @@
             ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('► বিস্তারিত কমেন্টে', 540, textY - 27);
-            headlineStartY = textY + 20; // শিরোনাম সামান্য নিচে শুরু হবে যাতে ওভারল্যাপ না করে
+            headlineStartY = textY + 20; 
         }
 
         // ৫. খবরের শিরোনাম (মাঝ বরাবর সেন্টার অ্যালাইনমেন্ট)
@@ -400,7 +479,7 @@
             lastY += 30;
         }
 
-        // ৬. ফুটার ব্র্যান্ডিং (সাইট ও ইউআরএল)
+        // ৬. ফুটার ব্র্যান্ডিং
         let hasAd = adImageInput.files && adImageInput.files[0];
         let footerY = hasAd ? 930 : 980;
 
