@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Of Rising Bangla - Photo Card Generator</title>
+    <title>Voice Of Rising Bangla - News Card Generator</title>
     <style>
         :root {
             --primary-red: #8b0000;
@@ -51,7 +51,7 @@
         }
         textarea {
             resize: vertical;
-            height: 80px;
+            height: 70px;
         }
         input[type="file"] {
             border: 1px dashed var(--brand-red);
@@ -122,6 +122,13 @@
             font-size: 13px;
             color: #555;
         }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -159,14 +166,8 @@
 
         <!-- খবরের ছবি -->
         <div class="form-group">
-            <label>খবরের মূল ছবি আপলোড করুন (একাধিক করতে পারেন):</label>
+            <label>খবরের মূল ছবি আপলোড করুন (একাধিক করা যাবে):</label>
             <input type="file" id="newsImageInput" accept="image/*" multiple onchange="generateCard()">
-        </div>
-
-        <!-- বিজ্ঞাপন ছবি -->
-        <div class="form-group">
-            <label>বিজ্ঞাপন ব্যানার আপলোড (যদি থাকে):</label>
-            <input type="file" id="adImageInput" accept="image/*" onchange="generateCard()">
         </div>
 
         <!-- তারিখ -->
@@ -181,21 +182,35 @@
             <textarea id="newsHeadline" placeholder="এখানে খবরের শিরোনাম লিখুন..." oninput="generateCard()"></textarea>
         </div>
 
+        <!-- বিস্তারিত কমেন্টে অপশন (ঐচ্ছিক) -->
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="commentTag" onchange="generateCard()">
+                <b>"বিস্তারিত কমেন্টে"</b> ট্যাগ যুক্ত করুন (ঐচ্ছিক)
+            </label>
+        </div>
+
+        <!-- বিজ্ঞাপন ছবি (ঐচ্ছিক) -->
+        <div class="form-group">
+            <label>বিজ্ঞাপন ব্যানার আপলোড করুন — কার্ডের একদম নিচে বসবে (ঐচ্ছিক):</label>
+            <input type="file" id="adImageInput" accept="image/*" onchange="generateCard()">
+        </div>
+
         <!-- কাস্টমাইজেশন স্লাইডার -->
         <div class="control-row">
             <div class="control-col form-group">
                 <div class="slider-label">
                     <label>টেক্সট পজিশন (উপরে / নিচে):</label>
-                    <span id="posVal">680px</span>
+                    <span id="posVal">670px</span>
                 </div>
-                <input type="range" id="textYPos" min="620" max="850" value="680" oninput="updateControls()">
+                <input type="range" id="textYPos" min="620" max="820" value="670" oninput="updateControls()">
             </div>
             <div class="control-col form-group">
                 <div class="slider-label">
                     <label>ফন্ট সাইজ:</label>
-                    <span id="sizeVal">48px</span>
+                    <span id="sizeVal">46px</span>
                 </div>
-                <input type="range" id="fontSize" min="30" max="65" value="48" oninput="updateControls()">
+                <input type="range" id="fontSize" min="30" max="62" value="46" oninput="updateControls()">
             </div>
         </div>
 
@@ -315,91 +330,109 @@
         let ctx = canvas.getContext('2d');
         canvas.classList.remove('hidden');
 
-        // ১. লাল ব্যাকগ্রাউন্ড
+        // ১. গাঢ় লাল ব্যাকগ্রাউন্ড (১০৮০ x ১০৮০)
         ctx.fillStyle = '#8b0000';
         ctx.fillRect(0, 0, 1080, 1080);
 
-        // ২. মূল ছবি রেন্ডার
+        // ২. মূল খবর পিকচার রেন্ডার
         if (newsImageInput.files && newsImageInput.files[0]) {
             let reader = new FileReader();
             reader.onload = function(e) {
                 let img = new Image();
                 img.onload = function() {
-                    ctx.drawImage(img, 0, 0, 1080, 600);
-                    processAdAndElements(ctx, headline, newsDate, storedLogo, adImageInput);
+                    ctx.drawImage(img, 0, 0, 1080, 620);
+                    drawCardDetails(ctx, headline, newsDate, storedLogo, adImageInput);
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(newsImageInput.files[0]);
         } else {
             ctx.fillStyle = '#cccccc';
-            ctx.fillRect(0, 0, 1080, 600);
+            ctx.fillRect(0, 0, 1080, 620);
             ctx.fillStyle = '#333333';
             ctx.font = 'bold 36px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('খবরের মূল ছবি এখানে থাকবে', 540, 300);
-            processAdAndElements(ctx, headline, newsDate, storedLogo, adImageInput);
+            ctx.fillText('খবরের মূল ছবি এখানে থাকবে', 540, 310);
+            drawCardDetails(ctx, headline, newsDate, storedLogo, adImageInput);
         }
     }
 
-    function processAdAndElements(ctx, headline, newsDate, storedLogo, adImageInput) {
-        if (adImageInput.files && adImageInput.files[0]) {
+    function drawCardDetails(ctx, headline, newsDate, storedLogo, adImageInput) {
+        let textY = parseInt(document.getElementById('textYPos').value);
+        let fSize = parseInt(document.getElementById('fontSize').value);
+        let showCommentTag = document.getElementById('commentTag').checked;
+
+        // ৩. তারিখ ব্যাজ
+        let dateY = textY - 55;
+        if (newsDate) {
+            let formattedDate = formatDate(newsDate);
+            ctx.fillStyle = '#b71c1c';
+            ctx.fillRect(415, dateY, 250, 36);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('তারিখ: ' + formattedDate, 540, dateY + 25);
+        }
+
+        // ৪. খবরের শিরোনাম
+        let lastY = textY + 20;
+        if (headline) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold ' + fSize + 'px sans-serif';
+            ctx.textAlign = 'center';
+            lastY = wrapTextCenter(ctx, headline, 540, textY + 20, 960, fSize + 15);
+        } else {
+            ctx.fillStyle = '#ffcccc';
+            ctx.font = 'italic 36px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('এখানে খবরের শিরোনাম প্রদর্শিত হবে', 540, textY + 20);
+            lastY += 30;
+        }
+
+        // ৫. "বিস্তারিত কমেন্টে" ব্যাজ (ঐচ্ছিক)
+        if (showCommentTag) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(430, lastY + 15, 220, 32);
+            ctx.fillStyle = '#b71c1c';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('► বিস্তারিত কমেন্টে', 540, lastY + 37);
+        }
+
+        // ৬. ফুটার ব্র্যান্ডিং (সাইট ও ইউআরএল)
+        let hasAd = adImageInput.files && adImageInput.files[0];
+        let footerY = hasAd ? 930 : 980;
+
+        ctx.fillStyle = '#ffcccc';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('VOR Bangla News', 540, footerY);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '20px sans-serif';
+        ctx.fillText('voiceofrisingbangla.com  |  ⓕ 𝕏 📷 @voiceofrisingbangla', 540, footerY + 30);
+
+        // ৭. অ্যাড ব্যানার (একদম নিচে - ঐচ্ছিক)
+        if (hasAd) {
             let reader = new FileReader();
             reader.onload = function(e) {
                 let adImg = new Image();
                 adImg.onload = function() {
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 600, 1080, 70);
-                    ctx.drawImage(adImg, 20, 605, 1040, 60);
-                    drawTextAndBranding(ctx, headline, newsDate, storedLogo);
+                    ctx.fillRect(0, 980, 1080, 100);
+                    ctx.drawImage(adImg, 10, 985, 1060, 90);
+                    drawLogo(ctx, storedLogo);
                 };
                 adImg.src = e.target.result;
             };
             reader.readAsDataURL(adImageInput.files[0]);
         } else {
-            drawTextAndBranding(ctx, headline, newsDate, storedLogo);
+            drawLogo(ctx, storedLogo);
         }
     }
 
-    function drawTextAndBranding(ctx, headline, newsDate, storedLogo) {
-        let textY = parseInt(document.getElementById('textYPos').value);
-        let fSize = parseInt(document.getElementById('fontSize').value);
-
-        // ৩. তারিখ ব্যাজ
-        if (newsDate) {
-            let formattedDate = formatDate(newsDate);
-            ctx.fillStyle = '#b71c1c';
-            ctx.fillRect(415, textY - 45, 250, 38);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 20px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('তারিখ: ' + formattedDate, 540, textY - 20);
-        }
-
-        // ৪. ডায়নামিক শিরোনাম
-        if (headline) {
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold ' + fSize + 'px sans-serif';
-            ctx.textAlign = 'center';
-            wrapTextCenter(ctx, headline, 540, textY + 25, 960, fSize + 15);
-        } else {
-            ctx.fillStyle = '#ffcccc';
-            ctx.font = 'italic 36px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('এখানে খবরের শিরোনাম প্রদর্শিত হবে', 540, textY + 30);
-        }
-
-        // ৫. ফুটার ব্র্যান্ডিং
-        ctx.fillStyle = '#ffcccc';
-        ctx.font = 'bold 24px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('VOR Bangla News', 540, 975);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '22px sans-serif';
-        ctx.fillText('voiceofrisingbangla.com  |  ⓕ 𝕏 📷 @voiceofrisingbangla', 540, 1020);
-
-        // ৬. গোল লোগো
+    function drawLogo(ctx, storedLogo) {
+        // ৮. বৃত্তাকার লোগো (ওপরের ডানপাশে)
         if (storedLogo) {
             let logoImg = new Image();
             logoImg.onload = function() {
@@ -445,9 +478,12 @@
         }
         lines.push(line);
 
+        let currentY = y;
         for (let k = 0; k < lines.length; k++) {
-            context.fillText(lines[k], x, y + (k * lineHeight));
+            context.fillText(lines[k], x, currentY);
+            currentY += lineHeight;
         }
+        return currentY - lineHeight;
     }
 
     function formatDate(dateStr) {
