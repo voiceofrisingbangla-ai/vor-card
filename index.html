@@ -261,7 +261,6 @@
                     <label>টেক্সট পজিশন (উপরে / নিচে):</label>
                     <span id="posVal">780px</span>
                 </div>
-                <!-- টাইটেলের পজিশন আরও নিচে নামিয়ে ফাঁকা জায়গা বাড়িয়ে দেওয়া হয়েছে -->
                 <input type="range" id="textYPos" min="680" max="900" value="780" oninput="updateControls()">
             </div>
             <div class="control-col form-group">
@@ -279,7 +278,7 @@
         <div class="preview-container">
             <canvas id="cardCanvas" width="1080" height="1080" class="hidden"></canvas>
             <br>
-            <a id="downloadBtn" class="btn hidden" style="background: #2e7d32; text-decoration: none; display: inline-block; box-sizing: border-box; margin-top: 15px;" download="vor-news-card.jpg">এইচডি (HD) ফটো কার্ড ডাউনলোড করুন</a>
+            <button id="downloadBtn" class="btn hidden" style="background: #2e7d32; margin-top: 15px;" onclick="downloadCard()">এইচডি (HD) ফটো কার্ড ডাউনলোড করুন</button>
         </div>
 
         <!-- পাসওয়ার্ড পরিবর্তন -->
@@ -419,7 +418,6 @@
         let ctx = canvas.getContext('2d');
         canvas.classList.remove('hidden');
 
-        // ইউনিক থিম কালার গ্রেডিয়েন্ট ম্যাপ
         let gradient = ctx.createLinearGradient(0, 0, 0, 1080);
         if (themeKey === 'darkCharcoal') {
             gradient.addColorStop(0, '#1f2937');
@@ -446,7 +444,6 @@
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 1080, 1080);
 
-        // ২. মূল ছবি রেন্ডার
         if (newsImageInput.files && newsImageInput.files[0]) {
             let reader = new FileReader();
             reader.onload = function(e) {
@@ -475,7 +472,6 @@
         let showCommentTag = document.getElementById('commentTag').checked;
         let hasAd = adImageInput.files && adImageInput.files[0];
 
-        // 🌟 ৩. ক্যাটাগরি ব্যাজ — ছবির ঠিক ওপরে (বামে)
         if (catBadge) {
             ctx.fillStyle = '#b71c1c';
             ctx.fillRect(30, 30, 230, 48);
@@ -485,7 +481,6 @@
             ctx.fillText(catBadge, 145, 62);
         }
 
-        // 🌟 ৪. তারিখ — ছবির ঠিক নিচে থিমের একদম মাথায় ফিক্সড (বামপাশে)
         if (newsDate) {
             let formattedDate = formatDate(newsDate);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -496,7 +491,6 @@
             ctx.fillText('তারিখ: ' + formattedDate, 63, 663);
         }
 
-        // 🌟 ৫. "বিস্তারিত কমেন্টে" ট্যাগ — থিমের একদম মাথায় (তারিখের সোজা সোজাসুজি ডানপাশে)
         if (showCommentTag) {
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(275, 638, 220, 36);
@@ -506,7 +500,6 @@
             ctx.fillText('► বিস্তারিত কমেন্টে', 385, 663);
         }
 
-        // ৬. খবরের শিরোনাম (মাঝ বরাবর এবং আরও নিচে নামানো)
         let lastY = textY;
         if (headline) {
             ctx.fillStyle = '#ffffff';
@@ -521,7 +514,6 @@
             lastY += 30;
         }
 
-        // সাব-হেডিং রেন্ডার
         if (subHeadline) {
             ctx.fillStyle = '#fef08a';
             ctx.font = '600 24px sans-serif';
@@ -529,7 +521,6 @@
             ctx.fillText(subHeadline, 540, lastY + 30);
         }
 
-        // ৭. ফুটার ব্র্যান্ডিং
         let footerY = hasAd ? 910 : 970;
 
         ctx.fillStyle = '#ffcccc';
@@ -541,7 +532,6 @@
         ctx.font = '20px sans-serif';
         ctx.fillText('voiceofrisingbangla.com  |  ⓕ 𝕏 📷 @voiceofrisingbangla', 540, footerY + 30);
 
-        // ৮. অ্যাড ব্যানার (কার্ডের একদম নিচে)
         if (hasAd) {
             let reader = new FileReader();
             reader.onload = function(e) {
@@ -561,7 +551,6 @@
     }
 
     function drawLogo(ctx, storedLogo) {
-        // ৯. বৃত্তাকার লোগো (ওপরের ডানপাশে)
         if (storedLogo) {
             let logoImg = new Image();
             logoImg.onload = function() {
@@ -582,11 +571,11 @@
                 ctx.strokeStyle = '#ffffff';
                 ctx.stroke();
 
-                finalizeDownload();
+                showDownloadButton();
             };
             logoImg.src = storedLogo;
         } else {
-            finalizeDownload();
+            showDownloadButton();
         }
     }
 
@@ -621,13 +610,25 @@
         return parts[2] + '/' + parts[1] + '/' + parts[0];
     }
 
-    function finalizeDownload() {
+    function showDownloadButton() {
+        document.getElementById('downloadBtn').classList.remove('hidden');
+    }
+
+    // অ্যাপ ক্র্যাশ এড়াতে অ্যান্ড্রয়েড ফ্রেন্ডলি ডাউনলোড মেথড
+    function downloadCard() {
         let canvas = document.getElementById('cardCanvas');
-        let link = document.getElementById('downloadBtn');
-        link.href = canvas.toDataURL('image/jpeg', 1.0);
-        link.classList.remove('hidden');
+        canvas.toBlob(function(blob) {
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'vor-news-card.jpg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 'image/jpeg', 1.0);
     }
 </script>
 
 </body>
-            </html>
+</html>
